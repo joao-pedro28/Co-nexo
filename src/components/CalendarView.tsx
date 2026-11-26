@@ -182,52 +182,54 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     return parts.length > 1 ? parseInt(parts[1], 10) : 0;
   };
 
-  // Helper de cores e badges de status
-  const getStatusBadge = (status: StatusAgendamento) => {
-    switch (status) {
-      case 'confirmado':
-        return {
-          bg: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-          dot: 'bg-emerald-500',
-          label: 'Confirmado'
-        };
-      case 'agendado':
-        return {
-          bg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
-          dot: 'bg-blue-500',
-          label: 'Agendado'
-        };
-      case 'realizado':
-        return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-          dot: 'bg-slate-400',
-          label: 'Realizado'
-        };
-      case 'falta_injustificada':
-        return {
-          bg: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-          dot: 'bg-rose-500',
-          label: 'Falta Injustificada'
-        };
-      case 'cancelado_menos_24h':
-        return {
-          bg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-          dot: 'bg-amber-500',
-          label: 'Cancelou <24h'
-        };
-      case 'reagendado':
-        return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 line-through',
-          dot: 'bg-slate-400',
-          label: 'Reagendado'
-        };
-      default:
-        return {
-          bg: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200',
-          dot: 'bg-slate-400',
-          label: status
-        };
+  // Helper de cores e badges de status com Sistema Oficial de 5 Cores do Co.Nexo
+  const getStatusBadge = (status: StatusAgendamento, tipo?: TipoSessao) => {
+    // 1. Azul: Triagem ou Diagnóstico Inicial
+    if (tipo === 'triagem' || tipo === 'diagnostico_1h') {
+      return {
+        bg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+        dot: 'bg-blue-500',
+        label: tipo === 'triagem' ? 'Triagem' : 'Diagnóstico Inicial'
+      };
     }
+    // 2. Verde: Confirmado
+    if (status === 'confirmado') {
+      return {
+        bg: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+        dot: 'bg-emerald-500',
+        label: 'Confirmado'
+      };
+    }
+    // 3. Laranja: Pendente de Confirmação
+    if (status === 'agendado') {
+      return {
+        bg: 'bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800',
+        dot: 'bg-orange-500',
+        label: 'Pendente de Confirmação'
+      };
+    }
+    // 4. Vermelho: Falta / Cancelamento <24h
+    if (status === 'falta_injustificada' || status === 'cancelado_menos_24h') {
+      return {
+        bg: 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+        dot: 'bg-rose-500',
+        label: status === 'falta_injustificada' ? 'Falta Injustificada' : 'Cancelou <24h'
+      };
+    }
+    // 5. Amarelo: Reagendado
+    if (status === 'reagendado') {
+      return {
+        bg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 line-through',
+        dot: 'bg-amber-500',
+        label: 'Reagendado'
+      };
+    }
+    // Realizado ou outros
+    return {
+      bg: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+      dot: 'bg-slate-400',
+      label: status === 'realizado' ? 'Realizado' : status
+    };
   };
 
   // Helper para tipo de sessão
@@ -373,6 +375,33 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
       </div>
 
       {/* ========================================================================= */}
+      {/* LEGENDA OFICIAL DE 5 CORES DA GRADE CONEXO                                */}
+      {/* ========================================================================= */}
+      <div className="flex flex-wrap items-center gap-3 px-3 py-2 bg-slate-50 dark:bg-[#161B22] border border-slate-200 dark:border-slate-800 rounded-xl text-[11px] font-medium">
+        <span className="font-bold text-slate-500 uppercase tracking-wider text-[10px]">Legenda de Status:</span>
+        <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+          <span>Confirmado (Verde)</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-orange-700 dark:text-orange-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />
+          <span>Pendente Confirmação (Laranja)</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-rose-700 dark:text-rose-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+          <span>Falta / &lt;24h (Vermelho)</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+          <span>Reagendado (Amarelo)</span>
+        </span>
+        <span className="inline-flex items-center gap-1 text-blue-700 dark:text-blue-300">
+          <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+          <span>Triagem / Diagnóstico (Azul)</span>
+        </span>
+      </div>
+
+      {/* ========================================================================= */}
       {/* MODO 1: VISUALIZAÇÃO SEMANAL COM HORAS NA LATERAL (TIMELINE CALENDÁRIO)  */}
       {/* ========================================================================= */}
       {viewMode === 'semana' && (
@@ -478,7 +507,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                             {agsIniciando.map(ag => {
                               const aluno = alunos.find(a => a.id === ag.alunoId);
                               const consultor = consultores.find(c => c.id === ag.consultorId);
-                              const statusInfo = getStatusBadge(ag.status);
+                              const statusInfo = getStatusBadge(ag.status, ag.tipo);
                               const tipoInfo = getTipoSessaoBadge(ag.tipo);
 
                               return (
@@ -603,7 +632,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                     <div className="space-y-1 flex-1 overflow-hidden">
                       {agsDoDia.slice(0, 2).map(ag => {
                         const aluno = alunos.find(a => a.id === ag.alunoId);
-                        const statusInfo = getStatusBadge(ag.status);
+                        const statusInfo = getStatusBadge(ag.status, ag.tipo);
 
                         return (
                           <div
@@ -663,7 +692,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
                         agsNestaHora.map(ag => {
                           const aluno = alunos.find(a => a.id === ag.alunoId);
                           const consultor = consultores.find(c => c.id === ag.consultorId);
-                          const statusInfo = getStatusBadge(ag.status);
+                          const statusInfo = getStatusBadge(ag.status, ag.tipo);
                           const tipoInfo = getTipoSessaoBadge(ag.tipo);
 
                           return (
@@ -717,7 +746,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             const ag = detalheAgendamento;
             const aluno = alunos.find(a => a.id === ag.alunoId);
             const consultor = consultores.find(c => c.id === ag.consultorId);
-            const statusInfo = getStatusBadge(ag.status);
+            const statusInfo = getStatusBadge(ag.status, ag.tipo);
             const tipoInfo = getTipoSessaoBadge(ag.tipo);
             const [anoStr, mesStr, diaStr] = ag.data.split('-');
 

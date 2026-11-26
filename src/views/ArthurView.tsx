@@ -4,7 +4,9 @@ import {
   Calendar as CalendarIcon, Clock, CheckCircle2, 
   MessageCircle, BookOpen, Send, MapPin, 
   FileCheck, ExternalLink, ChevronRight, ChevronLeft, Check,
-  CalendarSync, XCircle, AlertTriangle, X, User
+  CalendarSync, XCircle, AlertTriangle, X, User,
+  FileText, Download, Eye, DollarSign, Calculator, Printer,
+  TrendingDown, TrendingUp, Sparkles, Layers
 } from 'lucide-react';
 import { formatarDataAgenda, calcularPrazoCancelamento } from '../utils/dateUtils';
 
@@ -125,6 +127,28 @@ export const ArthurView: React.FC = () => {
   // Dúvidas e Tarefas
   const [novaPergunta, setNovaPergunta] = useState('');
   const [tarefasFeitas, setTarefasFeitas] = useState<{ [key: string]: boolean }>({});
+
+  // Ferramentas Práticas: Calculadora de Precificação Descomplicada
+  const [custoInsumos, setCustoInsumos] = useState<number>(9.50);
+  const [custoEmbalagem, setCustoEmbalagem] = useState<number>(1.80);
+  const [custoFixoUnit, setCustoFixoUnit] = useState<number>(2.20);
+  const [margemDesejada, setMargemDesejada] = useState<number>(35);
+
+  const custoTotalUnit = custoInsumos + custoEmbalagem + custoFixoUnit;
+  const precoSugerido = margemDesejada < 100 ? custoTotalUnit / (1 - (margemDesejada / 100)) : custoTotalUnit * 1.5;
+  const lucroLiquidoUnit = precoSugerido - custoTotalUnit;
+
+  // Ferramentas Práticas: Mini Fluxo de Caixa Diário
+  const [vendasPix, setVendasPix] = useState<number>(198.00);
+  const [vendasDinheiro, setVendasDinheiro] = useState<number>(110.00);
+  const [vendasCartao, setVendasCartao] = useState<number>(132.00);
+  const [saidaMercado, setSaidaMercado] = useState<number>(145.00);
+  const [saidaGas, setSaidaGas] = useState<number>(40.00);
+  const [saidaMoto, setSaidaMoto] = useState<number>(35.00);
+
+  const totalEntradas = vendasPix + vendasDinheiro + vendasCartao;
+  const totalSaidas = saidaMercado + saidaGas + saidaMoto;
+  const saldoDia = totalEntradas - totalSaidas;
 
   const handleMudarMes = (chave: string) => {
     setMesSelecionado(chave);
@@ -715,7 +739,7 @@ export const ArthurView: React.FC = () => {
         </div>
       )}
 
-      {/* 3. ABA 2: MINHAS TAREFAS */}
+      {/* 3. ABA 2: MINHAS TAREFAS & DIAGNÓSTICO PDF */}
       {activeTab === 'diario' && (() => {
         const diariosDoAluno = diarios.filter(d => d.alunoId === alunoAtivo.id);
         const tarefasDoDiario = diariosDoAluno
@@ -729,43 +753,352 @@ export const ArthurView: React.FC = () => {
         ];
 
         return (
-          <div className="bg-white dark:bg-[#161B22] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
-            <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
-              <div>
-                <h2 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2 font-['Montserrat']">
-                  <FileCheck className="w-5 h-5 text-emerald-600 dark:text-[#A1D900]" />
-                  <span>Tarefas Combinadas com a Mentora Aline</span>
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Atividades para o negócio de {alunoAtivo.nome}
-                </p>
+          <div className="space-y-6">
+            {/* Card de Diagnóstico em PDF */}
+            <div className="bg-gradient-to-r from-blue-50/70 to-indigo-50/70 dark:from-[#1E252E] dark:to-[#161B22] p-5 rounded-2xl border border-blue-200 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-[#004B8D] text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <FileText className="w-6 h-6 text-[#A1D900]" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-[#004B8D] dark:text-[#A1D900] uppercase tracking-wider font-['Montserrat']">
+                    Seu Diagnóstico Oficial de Negócios (PDF)
+                  </div>
+                  {alunoAtivo.diagnosticoPdf ? (
+                    <div>
+                      <div className="font-bold text-slate-900 dark:text-white text-sm">
+                        {alunoAtivo.diagnosticoPdf.nome}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        Anexado pela consultoria em {alunoAtivo.diagnosticoPdf.dataUpload} • Documento oficial de orientação da trilha
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="font-semibold text-slate-700 dark:text-slate-300 text-xs">
+                        Diagnóstico em preparação pela consultoria Aline/Laiza.
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        O PDF oficial com a análise do seu negócio aparecerá aqui.
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <span className="text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-[#A1D900] px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                {listaTarefas.length} tarefa(s)
-              </span>
+
+              {alunoAtivo.diagnosticoPdf && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => alert(`Visualizando documento: ${alunoAtivo.diagnosticoPdf?.nome}`)}
+                    className="px-3.5 py-2 rounded-xl bg-white dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Eye className="w-4 h-4 text-[#004B8D]" />
+                    <span>Visualizar PDF</span>
+                  </button>
+                  <button
+                    onClick={() => alert(`Iniciando download de: ${alunoAtivo.diagnosticoPdf?.nome}`)}
+                    className="px-3.5 py-2 rounded-xl bg-[#004B8D] hover:bg-[#00386b] text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  >
+                    <Download className="w-4 h-4 text-[#A1D900]" />
+                    <span>Baixar</span>
+                  </button>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2.5">
-              {listaTarefas.map((item, idx) => (
-                <label 
-                  key={`${alunoAtivo.id}_${idx}`} 
-                  className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-[#1E252E] hover:bg-slate-100 dark:hover:bg-[#252D37] rounded-xl cursor-pointer text-xs text-slate-800 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
-                >
-                  <input
-                    type="checkbox"
-                    checked={!!tarefasFeitas[`${alunoAtivo.id}_${idx}`]}
-                    onChange={() => setTarefasFeitas(prev => ({ ...prev, [`${alunoAtivo.id}_${idx}`]: !prev[`${alunoAtivo.id}_${idx}`] }))}
-                    className="w-4 h-4 rounded text-[#004B8D] focus:ring-[#004B8D] cursor-pointer"
-                  />
-                  <span className={tarefasFeitas[`${alunoAtivo.id}_${idx}`] ? 'line-through text-slate-400 font-normal' : 'font-semibold'}>
-                    {item}
-                  </span>
-                </label>
-              ))}
+            {/* Tarefas Combinadas */}
+            <div className="bg-white dark:bg-[#161B22] rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+                <div>
+                  <h2 className="font-bold text-slate-900 dark:text-white text-base flex items-center gap-2 font-['Montserrat']">
+                    <FileCheck className="w-5 h-5 text-emerald-600 dark:text-[#A1D900]" />
+                    <span>Tarefas Combinadas com a Mentora Aline</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Atividades para o negócio de {alunoAtivo.nome}
+                  </p>
+                </div>
+                <span className="text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-[#A1D900] px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                  {listaTarefas.length} tarefa(s)
+                </span>
+              </div>
+
+              <div className="space-y-2.5">
+                {listaTarefas.map((item, idx) => (
+                  <label 
+                    key={`${alunoAtivo.id}_${idx}`} 
+                    className="flex items-center gap-3 p-3.5 bg-slate-50 dark:bg-[#1E252E] hover:bg-slate-100 dark:hover:bg-[#252D37] rounded-xl cursor-pointer text-xs text-slate-800 dark:text-slate-200 transition-colors border border-slate-200 dark:border-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={!!tarefasFeitas[`${alunoAtivo.id}_${idx}`]}
+                      onChange={() => setTarefasFeitas(prev => ({ ...prev, [`${alunoAtivo.id}_${idx}`]: !prev[`${alunoAtivo.id}_${idx}`] }))}
+                      className="w-4 h-4 rounded text-[#004B8D] focus:ring-[#004B8D] cursor-pointer"
+                    />
+                    <span className={tarefasFeitas[`${alunoAtivo.id}_${idx}`] ? 'line-through text-slate-400 font-normal' : 'font-semibold'}>
+                      {item}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         );
       })()}
+
+      {/* ABA ESPECIAL: FERRAMENTAS PRÁTICAS DO EMPREENDEDOR (SEM EXCEL) */}
+      {activeTab === 'ferramentas' && (
+        <div className="space-y-6">
+          {/* Header da Ferramenta com Ação de Impressão do Caderno */}
+          <div className="bg-white dark:bg-[#161B22] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-[#004B8D] dark:text-[#A1D900]" />
+                <h2 className="text-base font-bold text-slate-900 dark:text-white font-['Montserrat']">
+                  Caderno do Empreendedor & Ferramentas Práticas
+                </h2>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Controles rápidos desenhados para celular — sem depender de planilhas complexas de Excel.
+              </p>
+            </div>
+
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-2.5 rounded-xl bg-[#004B8D] hover:bg-[#00386b] text-white font-bold text-xs flex items-center gap-2 cursor-pointer shadow-sm"
+            >
+              <Printer className="w-4 h-4 text-[#A1D900]" />
+              <span>Imprimir Caderno (PDF)</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* 1. CALCULADORA DE PRECIFICAÇÃO DESCOMPLICADA */}
+            <div className="bg-white dark:bg-[#161B22] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-emerald-600" />
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm font-['Montserrat']">
+                    Calculadora de Preço de Venda
+                  </h3>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                  Por Unidade
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Custo de Insumos / Ingredientes (R$)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.10"
+                    value={custoInsumos}
+                    onChange={(e) => setCustoInsumos(Number(e.target.value) || 0)}
+                    className="w-full p-2.5 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm"
+                  />
+                  <span className="text-[10px] text-slate-400">Ex: Arroz, feijão, frango, legumes</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Embalagem / Sacola (R$)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.10"
+                      value={custoEmbalagem}
+                      onChange={(e) => setCustoEmbalagem(Number(e.target.value) || 0)}
+                      className="w-full p-2.5 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                      Rateio Gás/Luz/Moto (R$)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.10"
+                      value={custoFixoUnit}
+                      onChange={(e) => setCustoFixoUnit(Number(e.target.value) || 0)}
+                      className="w-full p-2.5 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="font-semibold text-slate-700 dark:text-slate-300">
+                      Margem de Lucro Desejada (%):
+                    </label>
+                    <span className="font-bold text-[#004B8D] dark:text-[#A1D900] font-mono">{margemDesejada}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="10"
+                    max="60"
+                    value={margemDesejada}
+                    onChange={(e) => setMargemDesejada(Number(e.target.value))}
+                    className="w-full accent-[#004B8D]"
+                  />
+                </div>
+
+                {/* Resultado Destacado */}
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex justify-between items-center">
+                  <div>
+                    <span className="text-[11px] text-emerald-800 dark:text-emerald-300 block font-semibold">
+                      Preço Sugerido de Venda:
+                    </span>
+                    <span className="text-2xl font-black text-emerald-700 dark:text-[#A1D900] font-['Montserrat']">
+                      R$ {precoSugerido.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] text-slate-500 block">Lucro Líquido Unitário:</span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-slate-100 font-mono">
+                      R$ {lucroLiquidoUnit.toFixed(2)} / un
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. MINI FLUXO DE CAIXA DIÁRIO */}
+            <div className="bg-white dark:bg-[#161B22] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+              <div className="border-b border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm font-['Montserrat']">
+                    Folha de Caixa Diário
+                  </h3>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#004B8D]">
+                  Hoje
+                </span>
+              </div>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 block mb-2">Entradas do Dia (Vendas)</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">PIX (R$)</label>
+                      <input
+                        type="number"
+                        value={vendasPix}
+                        onChange={(e) => setVendasPix(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Dinheiro (R$)</label>
+                      <input
+                        type="number"
+                        value={vendasDinheiro}
+                        onChange={(e) => setVendasDinheiro(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Cartão (R$)</label>
+                      <input
+                        type="number"
+                        value={vendasCartao}
+                        onChange={(e) => setVendasCartao(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="font-bold text-slate-800 dark:text-slate-200 block mb-2">Saídas do Dia (Despesas)</span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Mercado/Feira</label>
+                      <input
+                        type="number"
+                        value={saidaMercado}
+                        onChange={(e) => setSaidaMercado(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs text-rose-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Gás/Insumos</label>
+                      <input
+                        type="number"
+                        value={saidaGas}
+                        onChange={(e) => setSaidaGas(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs text-rose-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-500 block mb-0.5">Moto Entrega</label>
+                      <input
+                        type="number"
+                        value={saidaMoto}
+                        onChange={(e) => setSaidaMoto(Number(e.target.value) || 0)}
+                        className="w-full p-2 bg-slate-50 dark:bg-[#0D1117] border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-xs text-rose-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Balanço do Dia */}
+                <div className={`p-4 rounded-2xl border flex justify-between items-center ${
+                  saldoDia >= 0 
+                    ? 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 text-blue-900 dark:text-blue-200' 
+                    : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 text-rose-900 dark:text-rose-200'
+                }`}>
+                  <div>
+                    <span className="text-[11px] block font-semibold">Saldo Final do Dia:</span>
+                    <span className="text-2xl font-black font-['Montserrat']">
+                      R$ {saldoDia.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="text-right text-[11px]">
+                    <div>Total Entradas: R$ {totalEntradas.toFixed(2)}</div>
+                    <div className="text-rose-600">Total Saídas: R$ {totalSaidas.toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. CARTÃO DO NEGÓCIO & CLIENTE IDEAL */}
+          <div className="bg-white dark:bg-[#161B22] p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm font-['Montserrat'] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Cartão do Negócio — {alunoAtivo.negocio}</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-1">
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0D1117] rounded-xl border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-slate-500 block text-[10px] uppercase">O Que Eu Vendo:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                  Quentinhas caseiras com sabor baiano autêntico e entregas diárias.
+                </span>
+              </div>
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0D1117] rounded-xl border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-slate-500 block text-[10px] uppercase">Meu Cliente Ideal:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                  Comerciários, bancários e atendentes de lojas do centro de Santo Antônio de Jesus.
+                </span>
+              </div>
+              <div className="p-3.5 bg-slate-50 dark:bg-[#0D1117] rounded-xl border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-slate-500 block text-[10px] uppercase">Meu Diferencial:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 mt-1 block">
+                  Pontualidade na entrega às 11h45 e facilidade de pagamento no PIX semanal.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 4. ABA 3: DÚVIDAS */}
       {activeTab === 'duvidas' && (

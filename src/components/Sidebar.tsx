@@ -5,7 +5,8 @@ import {
   Calendar, MessageSquare, Users, BookOpen, 
   HelpCircle, FileText, ShieldCheck, FileCheck, 
   MessageCircle, BarChart3, TrendingUp, Clock, 
-  LogOut, Sun, Moon, Pin, PinOff
+  LogOut, Sun, Moon, Pin, PinOff, Crown, Eye, Lock,
+  AlertCircle, DollarSign
 } from 'lucide-react';
 
 interface TabItem {
@@ -27,39 +28,49 @@ export const Sidebar: React.FC = () => {
 
   const isExpanded = isPinned || isHovered;
 
-  // Nomes oficiais e estritos dos perfis
+  // Nomes oficiais dos perfis
   const profileNames: Record<string, string> = {
+    superadmin: 'Super Admin',
+    regis: 'Gestão (Admin)',
     max: 'Recepção',
     aline: 'Mentor(a)',
-    arthur: 'Aluno(a)',
-    regis: 'Gestão'
+    arthur: 'Aluno(a)'
   };
 
   const currentProfileName = role ? profileNames[role] || '' : '';
 
   // Abas de funcionalidades específicas de cada perfil
   const roleTabs: Record<string, TabItem[]> = {
-    max: [
-      { id: 'agenda', label: 'Grade de Atendimentos', icon: <Calendar className="w-5 h-5" /> },
-      { id: 'lembretes', label: 'Lembretes WhatsApp', icon: <MessageSquare className="w-5 h-5" /> },
-      { id: 'alunos', label: 'Lista de Alunos', icon: <Users className="w-5 h-5" /> },
-    ],
-    aline: [
-      { id: 'prontuario', label: 'Prontuário Único', icon: <BookOpen className="w-5 h-5" /> },
-      { id: 'grade', label: 'Minha Grade', icon: <Calendar className="w-5 h-5" /> },
-      { id: 'duvidas', label: 'Dúvidas dos Alunos', icon: <HelpCircle className="w-5 h-5" /> },
-      { id: 'materiais', label: 'Materiais de Apoio', icon: <FileText className="w-5 h-5" /> },
-    ],
-    arthur: [
-      { id: 'proximo', label: 'Agendamento', icon: <Calendar className="w-5 h-5" /> },
-      { id: 'diario', label: 'Minhas Tarefas', icon: <FileCheck className="w-5 h-5" /> },
-      { id: 'duvidas', label: 'Dúvidas', icon: <MessageCircle className="w-5 h-5" /> },
-      { id: 'materiais', label: 'Materiais', icon: <BookOpen className="w-5 h-5" /> },
+    superadmin: [
+      { id: 'operadores', label: 'Gestão de Usuários', icon: <Users className="w-5 h-5" /> },
+      { id: 'auditoria', label: 'Logs de Auditoria', icon: <Clock className="w-5 h-5" /> },
+      { id: 'simulador', label: 'Simulador de Perfis', icon: <Eye className="w-5 h-5" /> },
     ],
     regis: [
       { id: 'kpis', label: 'Dashboard Executivo', icon: <BarChart3 className="w-5 h-5" /> },
       { id: 'funil', label: 'Funil do Programa', icon: <TrendingUp className="w-5 h-5" /> },
+      { id: 'calendario_abertura', label: 'Abertura & Bloqueios', icon: <Calendar className="w-5 h-5" /> },
       { id: 'anti_limbo', label: 'Fila Anti-Limbo (30/60d)', icon: <Clock className="w-5 h-5" /> },
+    ],
+    max: [
+      { id: 'agenda', label: 'Grade de Atendimentos', icon: <Calendar className="w-5 h-5" /> },
+      { id: 'passivos', label: 'Lista de Passivos (>15d)', icon: <AlertCircle className="w-5 h-5" /> },
+      { id: 'lembretes', label: 'Lembretes WhatsApp', icon: <MessageSquare className="w-5 h-5" /> },
+      { id: 'alunos', label: 'Alunos & SIG', icon: <Users className="w-5 h-5" /> },
+    ],
+    aline: [
+      { id: 'prontuario', label: 'Prontuário & Diagnóstico', icon: <BookOpen className="w-5 h-5" /> },
+      { id: 'triagem', label: 'Entrevista de Triagem', icon: <FileText className="w-5 h-5" /> },
+      { id: 'grade', label: 'Minha Grade', icon: <Calendar className="w-5 h-5" /> },
+      { id: 'duvidas', label: 'Dúvidas dos Alunos', icon: <HelpCircle className="w-5 h-5" /> },
+      { id: 'materiais', label: 'Materiais de Apoio', icon: <FileCheck className="w-5 h-5" /> },
+    ],
+    arthur: [
+      { id: 'proximo', label: 'Agendamento', icon: <Calendar className="w-5 h-5" /> },
+      { id: 'diario', label: 'Minhas Tarefas & PDF', icon: <FileCheck className="w-5 h-5" /> },
+      { id: 'ferramentas', label: 'Ferramentas Práticas', icon: <DollarSign className="w-5 h-5" /> },
+      { id: 'duvidas', label: 'Dúvidas', icon: <MessageCircle className="w-5 h-5" /> },
+      { id: 'materiais', label: 'Materiais', icon: <BookOpen className="w-5 h-5" /> },
     ],
   };
 
@@ -89,15 +100,20 @@ export const Sidebar: React.FC = () => {
         {/* Nome do perfil escolhido */}
         <div className="mt-3 text-center w-full">
           {isExpanded ? (
-            <div className="text-sm font-bold text-[#004B8D] dark:text-[#A1D900] tracking-wide font-['Montserrat']">
-              {currentProfileName}
+            <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-[#004B8D] dark:text-[#A1D900] tracking-wide font-['Montserrat']">
+              {role === 'superadmin' && <Crown className="w-4 h-4 text-purple-600 dark:text-purple-400" />}
+              <span>{currentProfileName}</span>
             </div>
           ) : (
             <div 
-              className="text-[10px] font-bold text-[#004B8D] dark:text-[#A1D900] truncate px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-slate-800"
+              className={`text-[10px] font-bold truncate px-1.5 py-0.5 rounded-md ${
+                role === 'superadmin' 
+                  ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' 
+                  : 'text-[#004B8D] dark:text-[#A1D900] bg-blue-50 dark:bg-slate-800'
+              }`}
               title={`Perfil: ${currentProfileName}`}
             >
-              {currentProfileName.slice(0, 3)}
+              {role === 'superadmin' ? 'ADM' : currentProfileName.slice(0, 3)}
             </div>
           )}
         </div>
@@ -114,11 +130,13 @@ export const Sidebar: React.FC = () => {
               title={!isExpanded ? tab.label : undefined}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? 'bg-[#004B8D] text-white shadow-xs font-["Montserrat"]'
+                  ? role === 'superadmin' 
+                    ? 'bg-purple-700 text-white shadow-xs font-["Montserrat"]'
+                    : 'bg-[#004B8D] text-white shadow-xs font-["Montserrat"]'
                   : 'text-[#1A1A1A] dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 font-medium'
               } ${!isExpanded ? 'justify-center' : 'justify-start'}`}
             >
-              <span className={isActive ? 'text-[#A1D900]' : 'text-[#004B8D] dark:text-slate-400'}>
+              <span className={isActive ? (role === 'superadmin' ? 'text-yellow-300' : 'text-[#A1D900]') : 'text-[#004B8D] dark:text-slate-400'}>
                 {tab.icon}
               </span>
               {isExpanded && (
@@ -152,14 +170,14 @@ export const Sidebar: React.FC = () => {
         {/* Botão de Trocar Perfil */}
         <button
           onClick={() => setRole(null)}
-          title={!isExpanded ? 'Trocar Perfil' : undefined}
+          title={!isExpanded ? 'Sair / Trocar Perfil' : undefined}
           className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer ${
             !isExpanded ? 'justify-center' : 'justify-start'
           }`}
         >
           <LogOut className="w-4 h-4" />
           {isExpanded && (
-            <span>Trocar Perfil</span>
+            <span>Sair da Conta</span>
           )}
         </button>
 
